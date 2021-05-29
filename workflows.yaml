@@ -1,0 +1,26 @@
+- define:
+    assign:
+      - array: ["foo", "ba", "r"]
+      - result: ""
+      - i: 0
+- check_condition:
+    switch:
+      - condition: ${len(array) > i}
+        next: iterate_call_api
+    next: exit_loop
+- iterate_call_api:
+    call: http.post
+    args:
+      url: https://[function url]
+      body:
+        message_from_workflow: ${"ParamFromWorkflow[" + array[i] + "]"}
+    result: the_message
+    next: iterate_count
+- iterate_count:
+    assign:
+      - result: ${result + array[i] + the_message.body}
+      - i: ${i+1}
+    next: check_condition
+- exit_loop:
+    return:
+        concat_result: ${result}
